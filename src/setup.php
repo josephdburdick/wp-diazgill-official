@@ -37,7 +37,8 @@ add_action('after_setup_theme', function () {
      * @link http://codex.wordpress.org/Function_Reference/register_nav_menus
      */
     register_nav_menus([
-        'primary_navigation' => __('Primary Navigation', 'sage')
+      'primary' => __('Primary Navigation', 'sage'),
+      'social'  => __('Social Links Menu', 'sage'),
     ]);
 
     /**
@@ -47,6 +48,7 @@ add_action('after_setup_theme', function () {
      * @link http://codex.wordpress.org/Function_Reference/add_image_size
      */
     add_theme_support('post-thumbnails');
+    set_post_thumbnail_size( 1200, 9999 );
 
     /**
      * Enable post formats
@@ -86,3 +88,20 @@ add_action('widgets_init', function () {
         'id'            => 'sidebar-footer'
     ] + $config);
 });
+
+/**
+ * Add slug class to menu items
+ */
+function add_slug_class_to_menu_item($output){
+	$ps = get_option('permalink_structure');
+	if(!empty($ps)){
+		$idstr = preg_match_all('/<li id="menu-item-(\d+)/', $output, $matches);
+		foreach($matches[1] as $mid){
+			$id = get_post_meta($mid, '_menu_item_object_id', true);
+			$slug = basename(get_permalink($id));
+			$output = preg_replace('/menu-item-'.$mid.'">/', 'menu-item-'.$mid.' menu-item-'.$slug.'">', $output, 1);
+		}
+	}
+	return $output;
+}
+add_filter('wp_nav_menu', 'add_slug_class_to_menu_item');
