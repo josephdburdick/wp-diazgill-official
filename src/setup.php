@@ -105,3 +105,15 @@ function add_slug_class_to_menu_item($output){
 	return $output;
 }
 add_filter('wp_nav_menu', 'add_slug_class_to_menu_item');
+
+function customize_rest_cors() {
+	remove_filter( 'rest_pre_serve_request', 'rest_send_cors_headers' );
+		add_filter( 'rest_pre_serve_request', function( $value ) {
+		header( 'Access-Control-Allow-Origin: *' );
+		header( 'Access-Control-Allow-Methods: GET' );
+		header( 'Access-Control-Allow-Credentials: true' );
+		header( 'Access-Control-Expose-Headers: Link', false );
+		return $value;
+	});
+}
+add_action( 'rest_api_init', 'customize_rest_cors', 15 );
